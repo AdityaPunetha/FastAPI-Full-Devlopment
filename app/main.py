@@ -88,4 +88,4 @@ def update_post(post_id: int, post: Post):
     return post_dict
 
 
-# uvicorn main:app --reload
+# uvicorn app.main:app --reload
