@@ -1,6 +1,6 @@
 from fastapi import FastAPI, status, Response, HTTPException, Depends
 from fastapi.params import Body
-from typing import Optional
+from typing import Optional, List
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -38,16 +38,16 @@ def root():
 @app.get("/sqlalchemy")
 def test_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
-    return {"posts": posts}
+    return posts
 
 
-@app.get("/posts")
+@app.get("/posts", response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
-    return {"data": posts}
+    return posts
 
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
+@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
@@ -56,7 +56,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     return new_post
 
 
-@app.get("/posts/{post_id}")
+@app.get("/posts/{post_id}", response_model=schemas.Post)
 def get_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if not post:
@@ -74,14 +74,14 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     return "Done"
 
 
-@app.put("/posts/{post_id}")
+@app.put("/posts/{post_id}", response_model=schemas.Post)
 def update_post(post_id: int, post: schemas.PostUpdate, db: Session = Depends(get_db)):
     post_query = db.query(models.Post).filter(models.Post.id == post_id)
     if not post_query.first():
         raise HTTPException(status_code=404, detail="Post not found")
     post_query.update(post.dict(), synchronize_session=False)
     db.commit()
-    return "Updated"
+    return post_query.first()
 
 
 # uvicorn app.main:app --reload
