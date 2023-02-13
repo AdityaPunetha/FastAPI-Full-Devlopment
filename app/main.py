@@ -64,40 +64,31 @@ def create_post(post: Post, db: Session = Depends(get_db)):
 
 
 @app.get("/posts/{post_id}")
-def get_post(post_id: int):
-    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(post_id),))
-    post = cursor.fetchone()
+def get_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
     return post
 
 
 @app.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(post_id: int):
-    cursor.execute("DELETE FROM posts WHERE id = %s returning *", (str(post_id),))
-    post = cursor.fetchone()
-    conn.commit()
-
-    if post is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == post_id)
+    if not post.first():
+        raise HTTPException(status_code=404, detail="Post not found")
+    post.delete(synchronize_session=False)
+    db.commit()
+    return "Done"
 
 
 @app.put("/posts/{post_id}")
-def update_post(post_id: int, post: Post):
-    cursor.execute(
-        """UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s returning *""",
-        (post.title, post.content, post.published, str(post_id)),
-    )
-    post = cursor.fetchone()
-    conn.commit()
-
-    if post is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
-
-    return post
+def update_post(post_id: int, post: Post, db: Session = Depends(get_db)):
+    post_query = db.query(models.Post).filter(models.Post.id == post_id)
+    if not post_query.first():
+        raise HTTPException(status_code=404, detail="Post not found")
+    post_query.update(post.dict(), synchronize_session=False)
+    db.commit()
+    return "Updated"
 
 
 # uvicorn app.main:app --reload
