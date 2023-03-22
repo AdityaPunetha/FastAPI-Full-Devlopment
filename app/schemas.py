@@ -58,4 +58,4 @@ class TokenData(BaseModel):
 class Vote(BaseModel):
     # user_id: int
     post_id: int
-    direction: conint(ge=-1, le=1)
+    dir: conint(ge=-1, le=1)
