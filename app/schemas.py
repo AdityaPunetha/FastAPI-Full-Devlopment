@@ -59,3 +59,11 @@ class Vote(BaseModel):
     # user_id: int
     post_id: int
     dir: conint(ge=-1, le=1)
+
+
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
