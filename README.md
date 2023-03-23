@@ -9,3 +9,4 @@
 - Vote Theory
 - Alembic for database migration
 - CORS
+- Dockerized
