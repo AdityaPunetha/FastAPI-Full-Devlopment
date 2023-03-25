@@ -10,3 +10,4 @@
 - Alembic for database migration
 - CORS
 - Dockerized
+- Tests via PyTest
