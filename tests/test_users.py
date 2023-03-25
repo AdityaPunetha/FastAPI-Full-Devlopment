@@ -4,16 +4,6 @@ from app import schemas
 from app.config import settings
 
 
-@pytest.fixture()
-def test_user(client):
-    user_data = {"email": "create_user@test.com", "password": "create_user_test"}
-    response = client.post("/user/", json=user_data)
-    assert response.status_code == 201
-    new_user = response.json()
-    new_user["password"] = user_data["password"]
-    return new_user
-
-
 def test_root(client):
     response = client.get("/")
     assert response.status_code == 200
