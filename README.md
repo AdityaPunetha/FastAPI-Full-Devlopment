@@ -11,3 +11,4 @@
 - CORS
 - Dockerized
 - Tests via PyTest
+- CI/CD through Github Actions
