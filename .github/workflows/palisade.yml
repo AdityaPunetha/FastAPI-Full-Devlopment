@@ -1,0 +1,39 @@
+name: Palisad Mitigation
+ 
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  palisade:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: workflow was triggered
+        run: echo ${{ github.event.issue.number }}
+      - name: get repository name
+        run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+      - name: check repo name
+        run: echo ${{ github.repository }}
+      - name: Pull package repo
+        uses: actions/checkout@v3.6.0
+        with: 
+          repository: Srajangpt1/palisades-action
+      - name: Pull target repo
+        uses: actions/checkout@v3.6.0
+        with: 
+          path: './tmp'
+      - uses: actions/setup-python@v4.7.0
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - name: Run package
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REPO_NAME: ${{ github.repository }}
+          CF_AUTH_TOKEN: ${{ secrets.CF_API_KEY }}
+        run: python main.py ${{ github.repository }} ${{ github.event.issue.number }} ${{ secrets.CF_API_KEY }}
+          
