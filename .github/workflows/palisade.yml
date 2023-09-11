@@ -35,5 +35,5 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           REPO_NAME: ${{ github.repository }}
           CF_AUTH_TOKEN: ${{ secrets.CF_API_KEY }}
-        run: python main.py ${{ github.repository }} ${{ github.event.issue.number }} ${{ secrets.CF_API_KEY }}
+        run: python main.py  --palisades_token ${{ secrets.CF_API_KEY }} --issue_number ${{ github.event.issue.number }}  --repo_name ${{ github.repository }} 
           
